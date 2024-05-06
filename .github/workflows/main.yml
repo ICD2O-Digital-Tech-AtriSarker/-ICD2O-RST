@@ -1,0 +1,31 @@
+##################################################
+# Run Super Linter against code base #
+##################################################
+
+---
+name: Super Linter
+
+on: [push, pull_request]
+
+jobs:
+  run-linters:
+    name: Super Linter
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository 🚦
+        uses: actions/checkout@main
+
+      - name: Run GitHub Super Linter 🚀
+        uses: github/super-linter@main
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          LINTER_RULES_PATH: /
+          VALIDATE_CLANG_FORMAT: false
+          VALIDATE_JAVASCRIPT_STANDARD: false
+          VALIDATE_PYTHON_FLAKE8: false
+          DISABLE_ERRORS: true
+          VALIDATE_GITLEAKS: false # for secrets detection
+          VALIDATE_JSCPD: false # for copy and paste detection
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
