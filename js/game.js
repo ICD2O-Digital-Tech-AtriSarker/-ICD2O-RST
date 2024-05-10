@@ -1,16 +1,17 @@
 /* global Phaser */
 
 // import Scenes
-import SplashScene from './splashScene.js'
-// import TitleScene from './js/titleScene.js';
-// import GameScene from './js/gameScene.js'
+import SplashScene from "./splashScene.js"
+import TitleScene from "./titleScene.js"
+// import GameScene from './gameScene.js'
 
 // Our game scenes
 const splashScene = new SplashScene()
+const titleScene = new TitleScene()
 
 // Viewport Size
-const viewport_width = 800;
-const viewport_height = 600;
+const viewport_width = 800
+const viewport_height = 600
 
 // CONFIG
 // ARCADE PHYSICS
@@ -18,25 +19,25 @@ const viewport_height = 600;
 const config = {
     type: Phaser.AUTO,
     physics: {
-        default: 'arcade',
+        default: "arcade",
         arcade: {
-            debug: false
-        }
+            debug: false,
+        },
     },
     scale: {
         mode: Phaser.Scale.FIT,
-        parent: 'phaser-example',
+        parent: "phaser-example",
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: viewport_width,
-        height: viewport_height
+        height: viewport_height,
     },
-    backgroundColor: 0x555555
+    backgroundColor: 0x555555,
 }
 
 const game = new Phaser.Game(config)
 // NOTE: remember any "key" is global and CAN NOT be reused!
-game.scene.add('splashScene', splashScene)
+game.scene.add("splashScene", splashScene)
+game.scene.add("titleScene", titleScene)
 
 // start title
-game.scene.start('splashScene')
-
+game.scene.start("splashScene")
