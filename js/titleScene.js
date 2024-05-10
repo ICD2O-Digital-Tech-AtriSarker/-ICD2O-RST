@@ -58,7 +58,7 @@ class TitleScene extends Phaser.Scene {
     this.titleVideo.play();
   }
   
-  // Delta update loop, loops whilst the sceen is active
+  // Delta update loop, loops whilst the scene is active
   update(time, delta) {
     // pass
   }

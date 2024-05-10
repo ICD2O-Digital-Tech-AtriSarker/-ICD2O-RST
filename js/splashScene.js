@@ -41,7 +41,7 @@ class SplashScene extends Phaser.Scene {
     this.splashVideo.play();
   }
 
-  // Delta update loop, loops whilst the sceen is active
+  // Delta update loop, loops whilst the scene is active
   // delta approximately = 1/fps  [ the time that has passed since the last frame (ms) ]
   // time = amount of the time the scene has been running ( milliseconds )
   update(time, delta) {
