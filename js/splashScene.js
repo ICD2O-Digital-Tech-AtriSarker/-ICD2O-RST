@@ -16,7 +16,7 @@ class SplashScene extends Phaser.Scene {
   preload() {
     console.log("Splash Scene")
     // LOAD SPLASH SCREEN VIDEO
-    this.load.video("splashVideo", "./.././assets/splashVideo.mp4")
+    this.load.video("splashVideo", "./../css/assets/splashVideo.mp4")
   }
 
   // Create, happens after preload() is complete
