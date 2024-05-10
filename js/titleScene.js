@@ -20,7 +20,7 @@ class TitleScene extends Phaser.Scene {
     // LOAD ASSETS FOR TITLE SCREEN
 
     // TITLE SCREEN VIDEO
-    this.load.video("titleVideo", "./../css/assets/titleScreen.mp4")
+    this.load.video("titleVideo", "./../assets/titleScreen.mp4")
     // TITLE SCREEN MUSIC
     this.load.audio("titleMusic", "./../sounds/titleMusic.mp3");
   }
