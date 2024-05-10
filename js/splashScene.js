@@ -1,5 +1,6 @@
 // SPLASH SCENE
 class SplashScene extends Phaser.Scene {
+  
   // Constructor, called upon "new"
   constructor() {
     super({ key: "splashScene" })
@@ -7,27 +8,37 @@ class SplashScene extends Phaser.Scene {
 
   // Initializer, called upon "start"
   init(data) {
+    // SET BACKGROUND COLOR TO BLUISH COLOR
     this.cameras.main.setBackgroundColor("#123466")
   }
 
   // Preload, for loading assets
   preload() {
     console.log("Splash Scene")
-    this.load.video("video", "./../assets/splashVideo.mp4")
+    // LOAD SPLASH SCREEN VIDEO
+    this.load.video("splashVideo", "./../assets/splashVideo.mp4")
   }
 
   // Create, happens after preload() is complete
   create(data) {
-    this.video = this.add.video(0, 0, "video")
-    this.video.x = this.cameras.main.width / 2
-    this.video.y = this.cameras.main.height / 2
-    this.video.scaleY = 1.3;
 
-    this.video.on('complete', () => {
+    // DRAW VIDEO ONTO SCREEN
+    this.splashVideo = this.add.video(0, 0, "splashVideo")
+
+    // POSITION IT IN CENTER
+    this.splashVideo.x = this.cameras.main.width / 2
+    this.splashVideo.y = this.cameras.main.height / 2
+
+    // RESIZE TO MAKE VIDEO FIT SCREEN
+    this.splashVideo.scaleY = 1.3;
+
+    // ONCE SPLASH SCREEN VIDEO ENDS, SWITCH TO TITLE SCENE
+    this.splashVideo.on('complete', () => {
       this.scene.switch("titleScene");
     });
 
-    this.video.play();
+    // PLAY SPLASH SCREEN VIDEO
+    this.splashVideo.play();
   }
 
   // Delta update loop, loops whilst the sceen is active

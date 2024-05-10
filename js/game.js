@@ -5,7 +5,7 @@ import SplashScene from "./splashScene.js"
 import TitleScene from "./titleScene.js"
 // import GameScene from './gameScene.js'
 
-// Our game scenes
+// Scenes
 const splashScene = new SplashScene()
 const titleScene = new TitleScene()
 
@@ -34,10 +34,12 @@ const config = {
     backgroundColor: 0x555555,
 }
 
+// Create the game object with the config
 const game = new Phaser.Game(config)
+
 // NOTE: remember any "key" is global and CAN NOT be reused!
 game.scene.add("splashScene", splashScene)
 game.scene.add("titleScene", titleScene)
 
-// start title
+// Start with splashScene
 game.scene.start("splashScene")
