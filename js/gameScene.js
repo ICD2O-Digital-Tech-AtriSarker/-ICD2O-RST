@@ -9,7 +9,6 @@ class GameScene extends Phaser.Scene {
 
   // INITIALIZE
   init(data) {
-    
     // SET BACKGROUND COLOR TO BLACK
     this.cameras.main.setBackgroundColor("#000000")
 
@@ -40,7 +39,7 @@ class GameScene extends Phaser.Scene {
     this.getDir = () => {
       let planeX = this.isKeyDown("RIGHT") - this.isKeyDown("LEFT")
       let planeY = this.isKeyDown("DOWN") - this.isKeyDown("UP")
-      
+
       // PYTHAGORAS THEOREM
       let planeLength = Math.sqrt(planeX * planeX + planeY * planeY)
 
@@ -52,7 +51,7 @@ class GameScene extends Phaser.Scene {
       // NORMALIZED DIRECTION VECTOR
       planeX *= 1 / planeLength
       planeY *= 1 / planeLength
-      
+
       // RETURN DIRECTION VECTOR
       return { x: planeX, y: planeY }
     }
@@ -82,12 +81,10 @@ class GameScene extends Phaser.Scene {
     this.load.image("rocket", "./assets/rocket.png")
     // AXE
     this.load.image("axe", "./assets/axe.png")
-    
   }
 
   // Create, happens after preload() is complete
   create(data) {
-    
     // this.add.sprite(0, 0, "arena").setScale(9);
 
     // GAME AREA, WHERE PLAYERS AND ENEMIES ARE SITUATED
@@ -112,7 +109,6 @@ class GameScene extends Phaser.Scene {
 
   // Delta update loop, loops whilst the scene is active
   update(time, delta) {
-
     // GET DIRECTION VECTOR
     let dir = this.getDir()
     // MOVE PLAYER FORWARD WITH DIRECTION VECTOR
@@ -146,7 +142,7 @@ class GameScene extends Phaser.Scene {
 
       // MAKE PROJECTILE THE CHOSEN WEAPON TYPE
       newProjectile.weaponType = this.plrWeapon
-      
+
       // Make projectile face mouse
       // 1.57 is precalculated estimate of Math.PI / 2,
       // which is 180 degrees
@@ -164,7 +160,7 @@ class GameScene extends Phaser.Scene {
       // FOR BETTER EFFECT, ( NOT ON TOP OF PLAYER )
       newProjectile.x += Math.sin(newProjectile.rotation) * 27
       newProjectile.y -= Math.cos(newProjectile.rotation) * 27
-      if (newProjectile.weaponType  === "axe") {
+      if (newProjectile.weaponType === "axe") {
         newProjectile.setScale(0.5)
       }
 
@@ -178,14 +174,17 @@ class GameScene extends Phaser.Scene {
       }, this.plrAttackSpeed)
     }
 
-    // Make each rocket go forward
+    // Go through each player projectile
+    // and apply movement
     this.plrProjectiles.children.each((proj) => {
+      // ROCKETS
       if (proj.weaponType === "rocket") {
         let rocket = proj
+        // MOVE ROCKET FORWARD
         rocket.x += Math.sin(rocket.rotation) * 0.3 * delta
         rocket.y -= Math.cos(rocket.rotation) * 0.3 * delta
 
-        // if rocket leaves gameArea, delete it
+        // if rocket completely leaves gameArea, delete it
         if (
           rocket.x < this.gameArea.x - this.gameArea.width / 1.6 ||
           rocket.x > this.gameArea.x + this.gameArea.width / 1.6 ||
@@ -195,26 +194,32 @@ class GameScene extends Phaser.Scene {
           // Delete rocket
           rocket.destroy()
         }
-      } else if (proj.weaponType === "axe") {
+      }
+      // AXES
+      else if (proj.weaponType === "axe") {
         let axe = proj
+        // MOVE AXE FORWARD
         axe.x += Math.sin(axe.rotation) * 0.04 * delta
         axe.y -= Math.cos(axe.rotation) * 0.04 * delta
-        console.log(axe.lifespan)
+
+       
         if (axe.lifespan > 0) {
-          console.log("2")
+           // if axe existed for longer than 700ms delete it
           if (time > axe.lifespan) {
             axe.destroy()
           }
         } else {
+          // Initialize 700ms lifespan for axe
           axe.lifespan = time + 700
-          console.log("e")
         }
       }
     })
   }
 
+  // Function to switch player weapon between rocket and axe
   switchWeapon() {
-    // TODO: switch weapon to axe
+    // IF current weapon is rocket, switch to axe
+    // vice versa
     if (this.plrWeapon == "rocket") {
       this.plrWeapon = "axe"
     } else {
