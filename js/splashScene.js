@@ -21,6 +21,7 @@ class SplashScene extends Phaser.Scene {
 
   // Create, happens after preload() is complete
   create(data) {
+    
 
     // DRAW VIDEO ONTO SCREEN
     this.splashVideo = this.add.video(0, 0, "splashVideo")
@@ -37,8 +38,12 @@ class SplashScene extends Phaser.Scene {
       this.scene.switch("titleScene");
     });
 
+
     // PLAY SPLASH SCREEN VIDEO
-    this.splashVideo.play();
+    this.splashVideo.play(false);
+
+    // FOR 
+    this.splashVideo.setPlaybackRate(10)
   }
 
   // Delta update loop, loops whilst the scene is active

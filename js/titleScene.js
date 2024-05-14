@@ -20,9 +20,12 @@ class TitleScene extends Phaser.Scene {
     // LOAD ASSETS FOR TITLE SCREEN
 
     // TITLE SCREEN VIDEO
-    this.load.video("titleVideo", "././assets/titleScreen.mp4")
+    this.load.video("titleVideo", "././assets/titleScreen.mp4");
     // TITLE SCREEN MUSIC
     this.load.audio("titleMusic", "././sounds/titleMusic.mp3");
+
+    // PLAY BUTTON
+    this.load.image("playButton", "./assets/playButton.png");
   }
 
   // Create, happens after preload() is complete
@@ -52,6 +55,15 @@ class TitleScene extends Phaser.Scene {
     this.titleMusic.on("complete", () => {
       this.titleMusic.play();
     })
+
+    //
+    this.playButton = this.add.sprite(400,450,"playButton");
+    this.playButton.setScale(2);
+    this.playButton.setInteractive({useHandCursor : true});
+    this.playButton.on( "pointerdown", () => {
+      this.titleMusic.stop()
+      this.scene.switch("gameScene");
+    } );
 
     // PLAY TITLE SCREEN VIDEO AND MUSIC
     this.titleMusic.play();

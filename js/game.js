@@ -3,11 +3,12 @@
 // import Scenes
 import SplashScene from "./splashScene.js"
 import TitleScene from "./titleScene.js"
-// import GameScene from './gameScene.js'
+import GameScene from './gameScene.js'
 
 // Scenes
 const splashScene = new SplashScene()
 const titleScene = new TitleScene()
+const gameScene = new GameScene()
 
 // Viewport Size
 const viewport_width = 800
@@ -40,6 +41,7 @@ const game = new Phaser.Game(config)
 // NOTE: remember any "key" is global and CAN NOT be reused!
 game.scene.add("splashScene", splashScene)
 game.scene.add("titleScene", titleScene)
+game.scene.add("gameScene", gameScene)
 
 // Start with splashScene
 game.scene.start("splashScene")
