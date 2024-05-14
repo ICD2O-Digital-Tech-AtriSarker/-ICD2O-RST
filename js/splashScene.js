@@ -48,14 +48,14 @@ class SplashScene extends Phaser.Scene {
 
   // Delta update loop, loops whilst the scene is active
   // delta approximately = 1/fps  [ the time that has passed since the last frame (ms) ]
-  // time = amount of the time the scene has been running ( milliseconds )
+  // time = amount of the time the game has been running ( milliseconds )
   update(time, delta) {
     // If 15 seconds have passed, go to the title scene
-    // Temporary Fix for github pages
-    if (time > 15000) {
-      console.log("FIRE")
-      this.scene.switch("titleScene")
-    }
+    // No longer needed
+    // if (time > 15000) {
+    //   console.log("FIRE")
+    //   this.scene.switch("titleScene")
+    // }
   }
 }
 

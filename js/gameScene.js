@@ -1,18 +1,19 @@
 /* global Phaser */
 
-// TITLE SCENE
+// GAME SCENE
 class GameScene extends Phaser.Scene {
   // Constructor, called upon "new"
   constructor() {
     super({ key: "gameScene" })
   }
 
-  // Initializer, called upon "start"
+  // INITIALIZE
   init(data) {
-    // SET BACKGROUND COLOR TO GREEN
+    
+    // SET BACKGROUND COLOR TO BLACK
     this.cameras.main.setBackgroundColor("#000000")
 
-    // Create control functions
+    // CONTROL LAYOUT
     this.controls = {}
     this.controls["LEFT"] = this.input.keyboard.addKey("LEFT")
     this.controls["RIGHT"] = this.input.keyboard.addKey("RIGHT")
@@ -25,6 +26,7 @@ class GameScene extends Phaser.Scene {
     this.controls2["UP"] = this.input.keyboard.addKey("W")
     this.controls2["DOWN"] = this.input.keyboard.addKey("S")
 
+    // HELPER FUNCTION FOR CONTROL
     this.isKeyDown = (inputKey) => {
       if (this.controls[inputKey].isDown || this.controls2[inputKey].isDown) {
         return 1
@@ -33,34 +35,44 @@ class GameScene extends Phaser.Scene {
       }
     }
 
+    // FUNCTION THAT RETURNS NORMALIZED DIRECTION VECTOR
+    // FOR PLAYER MOVEMENT
     this.getDir = () => {
       let planeX = this.isKeyDown("RIGHT") - this.isKeyDown("LEFT")
       let planeY = this.isKeyDown("DOWN") - this.isKeyDown("UP")
-      // NORMALIZE THE VECTOR
+      
+      // PYTHAGORAS THEOREM
       let planeLength = Math.sqrt(planeX * planeX + planeY * planeY)
+
+      // Edge case: if the length is 0, then the vector is 0
       if (planeLength === 0) {
         return { x: 0, y: 0 }
       }
+
+      // NORMALIZED DIRECTION VECTOR
       planeX *= 1 / planeLength
       planeY *= 1 / planeLength
-      // RETURN MOVEMENT VECTOR
+      
+      // RETURN DIRECTION VECTOR
       return { x: planeX, y: planeY }
     }
 
-    // SPEED
-    this.speed = 3
+    // PLAYER STATS
+    this.plrSpeed = 15
+    this.plrAttackSpeed = 500
 
     // GROUP FOR PLAYER PROJECTILES
     this.plrProjectiles = this.physics.add.group()
+    // DEBOUNCE FOR ATTACK COOLDOWN
     this.plrProjDebounce = true
 
+    // DEFAULT CHOSEN WEAPON
     this.plrWeapon = "rocket"
   }
 
   // Preload, for loading assets
   preload() {
     console.log("Game Scene")
-    // LOAD ASSETS FOR TITLE SCREEN
 
     // ARENA
     this.load.image("arena", "./assets/arena.jpg")
@@ -70,14 +82,22 @@ class GameScene extends Phaser.Scene {
     this.load.image("rocket", "./assets/rocket.png")
     // AXE
     this.load.image("axe", "./assets/axe.png")
+    
   }
 
   // Create, happens after preload() is complete
   create(data) {
+    
     // this.add.sprite(0, 0, "arena").setScale(9);
+
+    // GAME AREA, WHERE PLAYERS AND ENEMIES ARE SITUATED
+    // PLAYER CANNOT EXIT GAME AREA
     this.gameArea = this.add.rectangle(400, 320, 650, 430, 0xff0000, 0.1)
+
+    // ADD THE PLAYER SPRITE TO THE GAME
     this.player = this.physics.add.sprite(400, 300, "player").setScale(0.8)
 
+    // CONNECT LMB TO SWITCHING PLAYER WEAPON
     this.input.on(
       "pointerdown",
       function (pointer) {
@@ -85,29 +105,37 @@ class GameScene extends Phaser.Scene {
       },
       this
     )
+
+    // CROSSHAIR STYLE FOR CURSOR
     this.sys.canvas.style.cursor = "crosshair"
   }
 
   // Delta update loop, loops whilst the scene is active
   update(time, delta) {
-    let dir = this.getDir()
-    this.player.x += dir.x * this.speed * 0.1 * delta
-    this.player.y += dir.y * this.speed * 0.1 * delta
 
-    // CLAMP player within game area
+    // GET DIRECTION VECTOR
+    let dir = this.getDir()
+    // MOVE PLAYER FORWARD WITH DIRECTION VECTOR
+    this.player.x += dir.x * this.plrSpeed * 0.01 * delta
+    this.player.y += dir.y * this.plrSpeed * 0.01 * delta
+
+    // PREVENT PLAYER FROM EXITING GAME AREA
+    // CLAMPS PLAYER POSITION TO ONLY BE WITHIN GAME AREA
     this.player.x = Phaser.Math.Clamp(
       this.player.x,
       this.gameArea.x - this.gameArea.width / 2,
       this.gameArea.x + this.gameArea.width / 2
     )
-
     this.player.y = Phaser.Math.Clamp(
       this.player.y,
       this.gameArea.y - this.gameArea.height / 2,
       this.gameArea.y + this.gameArea.height / 2
     )
 
+    // CODE FOR SHOOTING PROJECTILE
+    // USES DEBOUNCE TO PREVENT PLAYER FROM SHOOTING TOO MUCH
     if (this.plrProjDebounce) {
+      // TURN ON DEBOUNCE
       this.plrProjDebounce = false
       // Create projectile at player
       let newProjectile = this.add.sprite(
@@ -115,8 +143,14 @@ class GameScene extends Phaser.Scene {
         this.player.y,
         this.plrWeapon
       )
+
+      // MAKE PROJECTILE THE CHOSEN WEAPON TYPE
       newProjectile.weaponType = this.plrWeapon
+      
       // Make projectile face mouse
+      // 1.57 is precalculated estimate of Math.PI / 2,
+      // which is 180 degrees
+      // which is added due to the orientation of the image
       let cursor = this.input.activePointer
       newProjectile.rotation =
         Phaser.Math.Angle.Between(
@@ -126,11 +160,22 @@ class GameScene extends Phaser.Scene {
           cursor.worldY
         ) + 1.57
 
+      // PROJECTILE IS INSTANTLY PUSHED A BIT
+      // FOR BETTER EFFECT, ( NOT ON TOP OF PLAYER )
+      newProjectile.x += Math.sin(newProjectile.rotation) * 27
+      newProjectile.y -= Math.cos(newProjectile.rotation) * 27
+      if (newProjectile.weaponType  === "axe") {
+        newProjectile.setScale(0.5)
+      }
+
+      // ADD PROJECTILE TO POOL/GROUP
       this.plrProjectiles.add(newProjectile)
 
+      // TURN OFF DEBOUNCE AFTER 500ms
+      // FOR NEXT SHOT
       setTimeout(() => {
         this.plrProjDebounce = true
-      }, 500)
+      }, this.plrAttackSpeed)
     }
 
     // Make each rocket go forward
@@ -138,14 +183,14 @@ class GameScene extends Phaser.Scene {
       if (proj.weaponType === "rocket") {
         let rocket = proj
         rocket.x += Math.sin(rocket.rotation) * 0.3 * delta
-        rocket.y -= Math.cos(rocket.rotation) * 0.3  * delta
+        rocket.y -= Math.cos(rocket.rotation) * 0.3 * delta
 
         // if rocket leaves gameArea, delete it
         if (
-          rocket.x < this.gameArea.x - this.gameArea.width / 1.8 ||
-          rocket.x > this.gameArea.x + this.gameArea.width / 1.8 ||
-          rocket.y < this.gameArea.y - this.gameArea.height / 1.8 ||
-          rocket.y > this.gameArea.y + this.gameArea.height / 1.8
+          rocket.x < this.gameArea.x - this.gameArea.width / 1.6 ||
+          rocket.x > this.gameArea.x + this.gameArea.width / 1.6 ||
+          rocket.y < this.gameArea.y - this.gameArea.height / 1.6 ||
+          rocket.y > this.gameArea.y + this.gameArea.height / 1.6
         ) {
           // Delete rocket
           rocket.destroy()

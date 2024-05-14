@@ -56,12 +56,16 @@ class TitleScene extends Phaser.Scene {
       this.titleMusic.play();
     })
 
-    //
+    // PLAY BUTTON
     this.playButton = this.add.sprite(400,450,"playButton");
     this.playButton.setScale(2);
+
+    // CONNECT PLAY BUTTON CLICK TO STARTING THE GAME
     this.playButton.setInteractive({useHandCursor : true});
     this.playButton.on( "pointerdown", () => {
+      // STOP MUSIC
       this.titleMusic.stop()
+      // SWITCH TO GAME SCENE
       this.scene.switch("gameScene");
     } );
 
