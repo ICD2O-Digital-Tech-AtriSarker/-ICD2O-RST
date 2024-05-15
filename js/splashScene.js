@@ -52,11 +52,11 @@ class SplashScene extends Phaser.Scene {
   // time = amount of the time the game has been running ( milliseconds )
   update(time, delta) {
     // If 15 seconds have passed, go to the title scene
-    // No longer needed
-    // if (time > 15000) {
-    //   console.log("FIRE")
-    //   this.scene.switch("titleScene")
-    // }
+    // [JUST IN CASE]
+    if (time > 15000) {
+      console.log("FIRE")
+      this.scene.switch("titleScene")
+    }
   }
 }
 
