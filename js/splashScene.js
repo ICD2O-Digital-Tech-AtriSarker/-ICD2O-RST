@@ -40,11 +40,12 @@ class SplashScene extends Phaser.Scene {
 
 
     // PLAY SPLASH SCREEN VIDEO
+    this.splashVideo.autoplay = true;
     this.splashVideo.play(false);
 
     // FOR TEST/DEBUGGING
     // FAST-FORWARDS SPLASH SCREEN TO SAVE TIME
-    // this.splashVideo.setPlaybackRate(10)
+    this.splashVideo.setPlaybackRate(10)
   }
 
   // Delta update loop, loops whilst the scene is active

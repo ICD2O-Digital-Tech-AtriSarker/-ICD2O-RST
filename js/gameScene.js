@@ -1,5 +1,8 @@
 /* global Phaser */
 
+import enemyHandler from "./enemyHandler.js"
+import UIhandler from "./UIhandler.js"
+
 // GAME SCENE
 class GameScene extends Phaser.Scene {
   // Constructor, called upon "new"
@@ -7,10 +10,12 @@ class GameScene extends Phaser.Scene {
     super({ key: "gameScene" })
   }
 
+  
+  
   // INITIALIZE
   init(data) {
     // SET BACKGROUND COLOR TO BLACK
-    this.cameras.main.setBackgroundColor("#000000")
+    this.cameras.main.setBackgroundColor("#575757")
 
     // CONTROL LAYOUT
     this.controls = {}
@@ -57,8 +62,10 @@ class GameScene extends Phaser.Scene {
     }
 
     // PLAYER STATS
-    this.plrSpeed = 15
-    this.plrAttackSpeed = 500
+    this.plrSpeed = 200
+    this.plrAttackSpeed = 1000
+    this.plrMaxHealth = 100
+    this.plrHealth = this.plrMaxHealth
 
     // GROUP FOR PLAYER PROJECTILES
     this.plrProjectiles = this.physics.add.group()
@@ -67,32 +74,85 @@ class GameScene extends Phaser.Scene {
 
     // DEFAULT CHOSEN WEAPON
     this.plrWeapon = "rocket"
+
+    // VARAIBLE TO STORE CURRENT WEAPON SPRITE BOTTOM-LEFT
+    this.selectedWeaponImg = null
+
+    this.enemyHandler = new enemyHandler(this)
+    this.UI = new UIhandler(this)
+
+    this.wallGroup = null
   }
 
+
+  
   // Preload, for loading assets
   preload() {
     console.log("Game Scene")
 
     // ARENA
-    this.load.image("arena", "./assets/arena.jpg")
+    this.load.image("gameBackground", "./assets/gameBackground.png")
     // PLAYER
     this.load.image("player", "./assets/player.png")
     // ROCKET
     this.load.image("rocket", "./assets/rocket.png")
     // AXE
     this.load.image("axe", "./assets/axe.png")
+
+    // Load enemy assets
+    this.enemyHandler.loadAssets()
   }
+
+  
 
   // Create, happens after preload() is complete
   create(data) {
-    // this.add.sprite(0, 0, "arena").setScale(9);
+    // ARENA
+    this.physics.add.sprite(400, 300, "gameBackground")
 
     // GAME AREA, WHERE PLAYERS AND ENEMIES ARE SITUATED
     // PLAYER CANNOT EXIT GAME AREA
-    this.gameArea = this.add.rectangle(400, 320, 650, 430, 0xff0000, 0.1)
+    this.gameArea = this.add.rectangle(400, 260, 650, 330, 0xff0000, 0)
+
+    // WALL GROUP
+    this.wallGroup = this.physics.add.group()
+    // WALLS
+    this.wall1 = this.physics.add.sprite(400, 470)
+    this.wall1.body.setSize(800, 40)
+    this.wall2 = this.physics.add.sprite(400, 40)
+    this.wall2.body.setSize(800, 40)
+    this.wall3 = this.physics.add.sprite(745, 260)
+    this.wall3.body.setSize(40, 600)
+    this.wall4 = this.physics.add.sprite(55, 260)
+    this.wall4.body.setSize(40, 600)
+
+    // ADD WALLS TO GROUP
+    this.wallGroup.add(this.wall1);
+    this.wallGroup.add(this.wall2);
+    this.wallGroup.add(this.wall3);
+    this.wallGroup.add(this.wall4);
+
+    this.wallGroup.children.each((wall) => {
+      wall.body.immovable = true
+    })
+
+    // COLLISION BETWEEN ENEMY AND WALL
+    this.physics.add.collider(
+      this.enemyHandler.Enemies,
+      this.wallGroup,
+      function (enemy, wall) {
+        enemy.body.setVelocity(
+          (Math.random()*2 - 1) * 500
+          , 
+          (Math.random()*2 - 1) * 500
+        )
+      }.bind(this)
+    )
 
     // ADD THE PLAYER SPRITE TO THE GAME
     this.player = this.physics.add.sprite(400, 300, "player").setScale(0.8)
+    this.player.body.setSize(40, 40)
+    this.player.setPushable(false)
 
     // CONNECT LMB TO SWITCHING PLAYER WEAPON
     this.input.on(
@@ -105,6 +165,43 @@ class GameScene extends Phaser.Scene {
 
     // CROSSHAIR STYLE FOR CURSOR
     this.sys.canvas.style.cursor = "crosshair"
+
+    this.enemyHandler.spawnEnemy("goose", 400, 300)
+
+
+    // Create Music Toggle Button
+    this.musicButton = this.UI.createButton(400,500, "MUSIC : ON" , function () {
+      this.sound.mute = !this.sound.mute
+      console.log(this.sound.mute)
+      if (this.sound.mute) {
+        this.musicButton.setText("MUSIC : OFF")
+      } else {
+        this.musicButton.setText("MUSIC : ON")
+      }
+    }.bind(this))
+
+    // Create DEBUG Toggle button
+    this.debugButton = this.UI.createButton(400,550, "DEBUG : OFF" , function () {
+      this.physics.world.drawDebug = !(this.physics.world.drawDebug)
+      if (this.physics.world.drawDebug) {
+        this.debugButton.setText("DEBUG : ON")
+      } else {
+        this.debugButton.setText("DEBUG : OFF")
+        this.physics.world.debugGraphic.clear();
+      }
+    }.bind(this))
+    this.physics.world.drawDebug = false;
+    this.physics.world.debugGraphic.clear();
+
+    // HP BAR
+    this.plrHpBar = this.UI.createBar(160, 500, 200, 32, "HP")
+    this.plrHpBar.setFillStyle(0x00ff00)
+    // XP BAR
+    this.plrXpBar = this.UI.createBar(160, 540, 200, 32, "XP")
+    this.plrXpBar.setFillStyle(0x0000ff)
+
+    // ADD COLLIDERS
+    this.enemyHandler.addColliders()
   }
 
   // Delta update loop, loops whilst the scene is active
@@ -112,9 +209,9 @@ class GameScene extends Phaser.Scene {
     // GET DIRECTION VECTOR
     let dir = this.getDir()
     // MOVE PLAYER FORWARD WITH DIRECTION VECTOR
-    this.player.x += dir.x * this.plrSpeed * 0.01 * delta
-    this.player.y += dir.y * this.plrSpeed * 0.01 * delta
-
+    this.player.body.setVelocityX(dir.x * this.plrSpeed + 0.1)
+    this.player.body.setVelocityY(dir.y * this.plrSpeed + 0.1)
+    
     // PREVENT PLAYER FROM EXITING GAME AREA
     // CLAMPS PLAYER POSITION TO ONLY BE WITHIN GAME AREA
     this.player.x = Phaser.Math.Clamp(
@@ -134,7 +231,7 @@ class GameScene extends Phaser.Scene {
       // TURN ON DEBOUNCE
       this.plrProjDebounce = false
       // Create projectile at player
-      let newProjectile = this.add.sprite(
+      let newProjectile = this.physics.add.sprite(
         this.player.x,
         this.player.y,
         this.plrWeapon
@@ -162,17 +259,27 @@ class GameScene extends Phaser.Scene {
       newProjectile.y -= Math.cos(newProjectile.rotation) * 27
       if (newProjectile.weaponType === "axe") {
         newProjectile.setScale(0.5)
+      } else {
+        newProjectile.body.setSize(20, 20)
       }
+
+      newProjectile.id = Math.random()
 
       // ADD PROJECTILE TO POOL/GROUP
       this.plrProjectiles.add(newProjectile)
 
       // TURN OFF DEBOUNCE AFTER 500ms
       // FOR NEXT SHOT
-      setTimeout(() => {
-        this.plrProjDebounce = true
-      }, this.plrAttackSpeed)
+      this.time.addEvent({
+        delay: this.plrAttackSpeed,
+        callback: () => {
+          this.plrProjDebounce = true
+        },
+      })
+
     }
+
+    this.enemyHandler.handleAction(time, delta)
 
     // Go through each player projectile
     // and apply movement
@@ -202,9 +309,8 @@ class GameScene extends Phaser.Scene {
         axe.x += Math.sin(axe.rotation) * 0.04 * delta
         axe.y -= Math.cos(axe.rotation) * 0.04 * delta
 
-       
         if (axe.lifespan > 0) {
-           // if axe existed for longer than 700ms delete it
+          // if axe existed for longer than 700ms delete it
           if (time > axe.lifespan) {
             axe.destroy()
           }
@@ -214,16 +320,33 @@ class GameScene extends Phaser.Scene {
         }
       }
     })
+
+    // UPDATE HP AND XP BARS
+    this.plrHpBar.update(this.plrMaxHealth, this.plrHealth)
+
+    if (this.plrHealth <= 0) {
+      // GAMEOVER
+      // os.delete("system32")
+      this.cameras.main.setBackgroundColor("#ff0000")
+    }
   }
 
   // Function to switch player weapon between rocket and axe
   switchWeapon() {
     // IF current weapon is rocket, switch to axe
     // vice versa
+    if (this.selectedWeaponImg != null) {
+      this.selectedWeaponImg.destroy()
+    }
+
     if (this.plrWeapon == "rocket") {
       this.plrWeapon = "axe"
+      // DRAW AXE ON BOTTOM LEFT CIRCLE
+      this.selectedWeaponImg = this.add.sprite(75, 525, "axe").setScale(0.7)
     } else {
       this.plrWeapon = "rocket"
+      // DRAW ROCKET ON BOTTOM LEFT CIRCLE
+      this.selectedWeaponImg = this.add.sprite(75, 525, "rocket").setScale(1.8)
     }
   }
 }

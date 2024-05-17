@@ -51,6 +51,7 @@ class TitleScene extends Phaser.Scene {
 
     // INITIALIZE sound object for TITLE MUSIC
     this.titleMusic = this.sound.add("titleMusic")
+    console.log(this.titleMusic)
     // MAKES THE MUSIC LOOP
     this.titleMusic.on("complete", () => {
       this.titleMusic.play();
