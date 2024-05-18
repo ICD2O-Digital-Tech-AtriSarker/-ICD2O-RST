@@ -4,11 +4,13 @@
 import SplashScene from "./splashScene.js"
 import TitleScene from "./titleScene.js"
 import GameScene from './gameScene.js'
+import PauseScene from './pauseScene.js'
 
 // Scenes
 const splashScene = new SplashScene()
 const titleScene = new TitleScene()
 const gameScene = new GameScene()
+const pauseScene = new PauseScene()
 
 // Viewport Size
 const viewport_width = 800
@@ -42,6 +44,6 @@ const game = new Phaser.Game(config)
 game.scene.add("splashScene", splashScene)
 game.scene.add("titleScene", titleScene)
 game.scene.add("gameScene", gameScene)
-
+game.scene.add("pauseScene", pauseScene)
 // Start with splashScene
 game.scene.start("splashScene")

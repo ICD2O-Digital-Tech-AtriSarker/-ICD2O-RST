@@ -10,8 +10,6 @@ class GameScene extends Phaser.Scene {
     super({ key: "gameScene" })
   }
 
-  
-  
   // INITIALIZE
   init(data) {
     // SET BACKGROUND COLOR TO BLACK
@@ -84,8 +82,6 @@ class GameScene extends Phaser.Scene {
     this.wallGroup = null
   }
 
-
-  
   // Preload, for loading assets
   preload() {
     console.log("Game Scene")
@@ -95,15 +91,13 @@ class GameScene extends Phaser.Scene {
     // PLAYER
     this.load.image("player", "./assets/player.png")
     // ROCKET
-    this.load.image("rocket", "./assets/rocket.png")
+    this.load.image("rocket", "./assets/projectiles/rocket.png")
     // AXE
-    this.load.image("axe", "./assets/axe.png")
+    this.load.image("axe", "./assets/projectiles/axe.png")
 
     // Load enemy assets
     this.enemyHandler.loadAssets()
   }
-
-  
 
   // Create, happens after preload() is complete
   create(data) {
@@ -127,10 +121,10 @@ class GameScene extends Phaser.Scene {
     this.wall4.body.setSize(40, 600)
 
     // ADD WALLS TO GROUP
-    this.wallGroup.add(this.wall1);
-    this.wallGroup.add(this.wall2);
-    this.wallGroup.add(this.wall3);
-    this.wallGroup.add(this.wall4);
+    this.wallGroup.add(this.wall1)
+    this.wallGroup.add(this.wall2)
+    this.wallGroup.add(this.wall3)
+    this.wallGroup.add(this.wall4)
 
     this.wallGroup.children.each((wall) => {
       wall.body.immovable = true
@@ -141,10 +135,20 @@ class GameScene extends Phaser.Scene {
       this.enemyHandler.Enemies,
       this.wallGroup,
       function (enemy, wall) {
-        enemy.body.setVelocity(
-          (Math.random()*2 - 1) * 500
-          , 
-          (Math.random()*2 - 1) * 500
+        enemy.x = Phaser.Math.Clamp(
+          enemy.x,
+          this.gameArea.x - (this.gameArea.width - enemy.width) / 2,
+          this.gameArea.x + (this.gameArea.width - enemy.width) / 2
+        )
+        enemy.y = Phaser.Math.Clamp(
+          enemy.y,
+          this.gameArea.y - (this.gameArea.height - enemy.height) / 2,
+          this.gameArea.y + (this.gameArea.height - enemy.height) / 2
+        )
+
+        enemy.setVelocity(
+          (Math.random() * 2 - 1) * 200,
+          (Math.random() * 2 - 1) * 200
         )
       }.bind(this)
     )
@@ -166,33 +170,55 @@ class GameScene extends Phaser.Scene {
     // CROSSHAIR STYLE FOR CURSOR
     this.sys.canvas.style.cursor = "crosshair"
 
-    this.enemyHandler.spawnEnemy("goose", 400, 300)
-
+    // this.enemyHandler.spawnEnemy("goose", 500, 350)
+    // this.enemyHandler.spawnEnemy("bulk", 100, 200)
+    // this.enemyHandler.spawnEnemy("warrior", 500, 150)
 
     // Create Music Toggle Button
-    this.musicButton = this.UI.createButton(400,500, "MUSIC : ON" , function () {
-      this.sound.mute = !this.sound.mute
-      console.log(this.sound.mute)
-      if (this.sound.mute) {
-        this.musicButton.setText("MUSIC : OFF")
-      } else {
-        this.musicButton.setText("MUSIC : ON")
-      }
-    }.bind(this))
+    this.musicButton = this.UI.createButton(
+      400,
+      500,
+      "MUSIC : ON",
+      function () {
+        this.sound.mute = !this.sound.mute
+        console.log(this.sound.mute)
+        if (this.sound.mute) {
+          this.musicButton.setText("MUSIC : OFF")
+        } else {
+          this.musicButton.setText("MUSIC : ON")
+        }
+      }.bind(this)
+    )
 
     // Create DEBUG Toggle button
-    this.debugButton = this.UI.createButton(400,550, "DEBUG : OFF" , function () {
-      this.physics.world.drawDebug = !(this.physics.world.drawDebug)
-      if (this.physics.world.drawDebug) {
-        this.debugButton.setText("DEBUG : ON")
-      } else {
-        this.debugButton.setText("DEBUG : OFF")
-        this.physics.world.debugGraphic.clear();
-      }
-    }.bind(this))
-    this.physics.world.drawDebug = false;
-    this.physics.world.debugGraphic.clear();
+    this.debugButton = this.UI.createButton(
+      400,
+      550,
+      "DEBUG : OFF",
+      function () {
+        this.physics.world.drawDebug = !this.physics.world.drawDebug
+        if (this.physics.world.drawDebug) {
+          this.debugButton.setText("DEBUG : ON")
+        } else {
+          this.debugButton.setText("DEBUG : OFF")
+          this.physics.world.debugGraphic.clear()
+        }
+      }.bind(this)
+    )
+    this.physics.world.drawDebug = false
+    this.physics.world.debugGraphic.clear()
 
+    // Create Pause Button
+    this.pauseButton = this.UI.createButton(
+      650,
+      525,
+      "PAUSE",
+      function () {
+        this.scene.launch("pauseScene")
+        this.scene.pause("gameScene");
+      }.bind(this)
+    )
+    
     // HP BAR
     this.plrHpBar = this.UI.createBar(160, 500, 200, 32, "HP")
     this.plrHpBar.setFillStyle(0x00ff00)
@@ -202,16 +228,19 @@ class GameScene extends Phaser.Scene {
 
     // ADD COLLIDERS
     this.enemyHandler.addColliders()
+
+    this.enemyHandler.addText()
   }
 
   // Delta update loop, loops whilst the scene is active
   update(time, delta) {
+    this.enemyHandler.handleWaves()
     // GET DIRECTION VECTOR
     let dir = this.getDir()
     // MOVE PLAYER FORWARD WITH DIRECTION VECTOR
     this.player.body.setVelocityX(dir.x * this.plrSpeed + 0.1)
     this.player.body.setVelocityY(dir.y * this.plrSpeed + 0.1)
-    
+
     // PREVENT PLAYER FROM EXITING GAME AREA
     // CLAMPS PLAYER POSITION TO ONLY BE WITHIN GAME AREA
     this.player.x = Phaser.Math.Clamp(
@@ -257,13 +286,20 @@ class GameScene extends Phaser.Scene {
       // FOR BETTER EFFECT, ( NOT ON TOP OF PLAYER )
       newProjectile.x += Math.sin(newProjectile.rotation) * 27
       newProjectile.y -= Math.cos(newProjectile.rotation) * 27
+
+      // axe
       if (newProjectile.weaponType === "axe") {
         newProjectile.setScale(0.5)
-      } else {
+      }
+      // rocket
+      else {
         newProjectile.body.setSize(20, 20)
       }
 
+      // unique id, for enemy collision
       newProjectile.id = Math.random()
+
+      newProjectile.setPushable(false)
 
       // ADD PROJECTILE TO POOL/GROUP
       this.plrProjectiles.add(newProjectile)
@@ -276,7 +312,6 @@ class GameScene extends Phaser.Scene {
           this.plrProjDebounce = true
         },
       })
-
     }
 
     this.enemyHandler.handleAction(time, delta)
@@ -306,8 +341,8 @@ class GameScene extends Phaser.Scene {
       else if (proj.weaponType === "axe") {
         let axe = proj
         // MOVE AXE FORWARD
-        axe.x += Math.sin(axe.rotation) * 0.04 * delta
-        axe.y -= Math.cos(axe.rotation) * 0.04 * delta
+        axe.x += Math.sin(axe.rotation) * 0.05 * delta
+        axe.y -= Math.cos(axe.rotation) * 0.05 * delta
 
         if (axe.lifespan > 0) {
           // if axe existed for longer than 700ms delete it
