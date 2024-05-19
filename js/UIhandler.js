@@ -60,7 +60,8 @@ class UIHandler {
     bar.text.setOrigin(0, 0)
 
     bar.update = (maxValue, currentValue) => {
-      bar.scaleX = Math.max(currentValue / maxValue, 0)
+      // UPDATE BAR PROGRESS, CLAMPED TO VALID PORPORTION
+      bar.scaleX = Math.min(Math.max(currentValue / maxValue, 0), 1)
       bar.text.setText(`[${name}] ${currentValue}/${maxValue}`)
     }
 

@@ -29,6 +29,9 @@ class enemyHandler {
     enemy.spriteKey = "goose"
     enemy.spriteSize = 70
 
+    // Amount of xp to be awarded upon kill
+    enemy.xp = 40
+
     // advance : goes towards player
     // retreat : goes away from player
     // shoot : fire projectile
@@ -83,6 +86,7 @@ class enemyHandler {
   }
 
   handleAction(time, delta) {
+    this.handleWaves()
     let player = this.gameScene.player
     this.Enemies.children.each((enemy) => {
       let enemyData = enemy.stats
@@ -210,6 +214,7 @@ class enemyHandler {
         enemy.setAlpha(0.1 + enemy.health / enemy.stats.maxHealth)
 
         if (enemy.health <= 0) {
+          this.gameScene.plrXp += enemy.stats.xp
           enemy.destroy()
           return
         }
@@ -240,10 +245,9 @@ class enemyHandler {
     enm.projectileDistance = 2000
     enm.spriteKey = "goose"
     enm.spriteSize = 70
+    enm.xp = 40
     enm.actionLoop = ["advance", "shoot", "retreat", "retreat"]
-    enm.actionLoopIndex = 0
     enm.actionSpeed = 400
-    enm.nextAction = 0
 
     // BULK
     this.EnemyList["bulk"] = this.newEnemy()
@@ -257,6 +261,7 @@ class enemyHandler {
     enm.projectileDistance = 100
     enm.spriteKey = "amazingBulk"
     enm.spriteSize = 110
+    enm.xp = 100
     enm.actionLoop = ["advance", "shoot", "advance", "advance", "shoot"]
     enm.actionSpeed = 370
 
@@ -272,6 +277,7 @@ class enemyHandler {
     enm.projectileDistance = 80
     enm.spriteKey = "warrior"
     enm.spriteSize = 70
+    enm.xp = 50
     enm.actionLoop = ["advance", "shoot", "advance"]
     enm.actionSpeed = 400
 

@@ -23,6 +23,9 @@ class SplashScene extends Phaser.Scene {
     // Load Pause Screen
     this.load.image("pauseScreen",  "./assets/pauseScreen.png")
 
+    // Load Upgrade Screen/Menu
+    this.load.image("upgradeScreen",  "./assets/upgradeScreen.png")
+
     // Load Try Again Button
     this.load.image("tryAgainButton",  "./assets/tryAgainButton.png")
   }
@@ -57,7 +60,7 @@ class SplashScene extends Phaser.Scene {
 
     // FOR TEST/DEBUGGING
     // FAST-FORWARDS SPLASH SCREEN TO SAVE TIME
-    this.splashVideo.setPlaybackRate(10)
+    // this.splashVideo.setPlaybackRate(10)
   }
 
   // Delta update loop, loops whilst the scene is active

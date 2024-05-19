@@ -68,6 +68,11 @@ class GameScene extends Phaser.Scene {
     this.plrAttackSpeed = this.plrStats.attackSpeed
     this.plrMaxHealth = this.plrStats.maxHealth
     this.plrDamage = this.plrStats.damage
+    this.plrXp = this.plrStats.xp
+    this.plrLevel = this.plrStats.level
+
+    // MAX LEVEL
+    this.maxLevel = 40
 
     // SET HP TO MAX HP
     this.plrHealth = this.plrMaxHealth
@@ -236,11 +241,15 @@ class GameScene extends Phaser.Scene {
     this.enemyHandler.addColliders()
 
     this.enemyHandler.addText()
+
+    // WEAPON CIRCLE AT BOTTOM
+    this.switchWeapon()
+    this.switchWeapon()
   }
 
   // Delta update loop, loops whilst the scene is active
   update(time, delta) {
-    this.enemyHandler.handleWaves()
+  
     // GET DIRECTION VECTOR
     let dir = this.getDir()
     // MOVE PLAYER FORWARD WITH DIRECTION VECTOR
@@ -313,7 +322,7 @@ class GameScene extends Phaser.Scene {
       // TURN OFF DEBOUNCE AFTER 500ms
       // FOR NEXT SHOT
       this.time.addEvent({
-        delay: this.plrAttackSpeed,
+        delay: 1000 / this.plrAttackSpeed,
         callback: () => {
           this.plrProjDebounce = true
         },
@@ -363,8 +372,17 @@ class GameScene extends Phaser.Scene {
       }
     })
 
-    // UPDATE HP AND XP BARS
+    // UPDATE HP BAR
     this.plrHpBar.update(this.plrMaxHealth, this.plrHealth)
+
+    // XP, LEVEL AND XP BAR
+    if (this.plrXp >= this.xpAmountForLevel(this.plrLevel+1)) {
+      this.levelUp()
+    }
+    
+    this.plrXpBar.update(
+      this.xpAmountForLevel(this.plrLevel+1) - this.xpAmountForLevel(this.plrLevel), 
+      this.plrXp - this.xpAmountForLevel(this.plrLevel))
 
     if (this.plrHealth <= 0) {
       // GAMEOVER
@@ -410,6 +428,27 @@ class GameScene extends Phaser.Scene {
     this.resetScene = true
     
   }
+
+  // Function for amount of xp needed for a level
+  xpAmountForLevel(levelNum) {
+    if (levelNum <= 0) {return 0}
+    if (levelNum >= 40) {return Infinity}
+    return (levelNum * 50) * (levelNum + 1)
+  }
+
+  // Function that is called on levelUp
+  levelUp() {
+    this.plrLevel += 1
+
+    // FULL HP
+    this.plrHealth = this.plrMaxHealth
+    
+    // Pause Game and add upgrade scene
+    this.scene.launch("upgradeScene")
+    this.scene.pause("gameScene");
+
+  }
+
 }
 
 export default GameScene

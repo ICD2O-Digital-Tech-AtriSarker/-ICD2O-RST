@@ -5,6 +5,7 @@ import SplashScene from "./splashScene.js"
 import TitleScene from "./titleScene.js"
 import GameScene from './gameScene.js'
 import PauseScene from './pauseScene.js'
+import UpgradeScene from './upgradeScene.js'
 import GameOverScene from './gameOverScene.js'
 
 // Scenes
@@ -12,6 +13,7 @@ const splashScene = new SplashScene()
 const titleScene = new TitleScene()
 const gameScene = new GameScene()
 const pauseScene = new PauseScene()
+const upgradeScene = new UpgradeScene()
 const gameOverScene = new GameOverScene()
 
 // Viewport Size
@@ -47,6 +49,7 @@ game.scene.add("splashScene", splashScene)
 game.scene.add("titleScene", titleScene)
 game.scene.add("gameScene", gameScene)
 game.scene.add("pauseScene", pauseScene)
+game.scene.add("upgradeScene", upgradeScene)
 game.scene.add("gameOverScene", gameOverScene)
 
 // Start with splashScene

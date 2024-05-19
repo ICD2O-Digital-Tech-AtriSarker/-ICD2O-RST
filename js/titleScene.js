@@ -16,9 +16,11 @@ class TitleScene extends Phaser.Scene {
     // PLAYER STATS
     let playerStats = {}
     playerStats.speed = 200
-    playerStats.attackSpeed = 1000
+    playerStats.attackSpeed = 1
     playerStats.maxHealth = 100
     playerStats.damage = 10
+    playerStats.xp = 0
+    playerStats.level = 0
 
     // MAKE PLAYER STATS GLOBAL
     this.registry.set('playerStats', Object.assign({},playerStats))
@@ -60,8 +62,8 @@ class TitleScene extends Phaser.Scene {
     });
 
     // INITIALIZE sound object for TITLE MUSIC
-    this.titleMusic = this.sound.add("titleMusic")
-    console.log(this.titleMusic)
+    this.titleMusic = this.sound.add("titleMusic", {volume: 0.1})
+
     // MAKES THE MUSIC LOOP
     this.titleMusic.on("complete", () => {
       this.titleMusic.play();
