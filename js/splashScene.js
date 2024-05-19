@@ -48,7 +48,6 @@ class SplashScene extends Phaser.Scene {
     })
 
     this.startedTime = -999999999
-    this.splashVideo.autoplay = false;
     this.startScreen = this.add.image(400, 300, "startScreen")
     this.startScreen.setInteractive({ useHandCursor: true })
     this.startScreen.on("pointerdown", function () {
