@@ -12,6 +12,8 @@ class GameScene extends Phaser.Scene {
 
   // INITIALIZE
   init(data) {
+    // Get restart data
+    this.restarted = data.restart
     // SET BACKGROUND COLOR TO BLACK
     this.cameras.main.setBackgroundColor("#575757")
 
@@ -60,11 +62,16 @@ class GameScene extends Phaser.Scene {
     }
 
     // PLAYER STATS
-    this.plrSpeed = 200
-    this.plrAttackSpeed = 1000
-    this.plrMaxHealth = 100
-    this.plrHealth = this.plrMaxHealth
+    this.plrStats = this.registry.get('playerStats')
+    
+    this.plrSpeed = this.plrStats.speed
+    this.plrAttackSpeed = this.plrStats.attackSpeed
+    this.plrMaxHealth = this.plrStats.maxHealth
+    this.plrDamage = this.plrStats.damage
 
+    // SET HP TO MAX HP
+    this.plrHealth = this.plrMaxHealth
+ 
     // GROUP FOR PLAYER PROJECTILES
     this.plrProjectiles = this.physics.add.group()
     // DEBOUNCE FOR ATTACK COOLDOWN
@@ -102,7 +109,7 @@ class GameScene extends Phaser.Scene {
   // Create, happens after preload() is complete
   create(data) {
     // ARENA
-    this.physics.add.sprite(400, 300, "gameBackground")
+    this.gameBackground = this.physics.add.sprite(400, 300, "gameBackground")
 
     // GAME AREA, WHERE PLAYERS AND ENEMIES ARE SITUATED
     // PLAYER CANNOT EXIT GAME AREA
@@ -181,7 +188,6 @@ class GameScene extends Phaser.Scene {
       "MUSIC : ON",
       function () {
         this.sound.mute = !this.sound.mute
-        console.log(this.sound.mute)
         if (this.sound.mute) {
           this.musicButton.setText("MUSIC : OFF")
         } else {
@@ -344,14 +350,15 @@ class GameScene extends Phaser.Scene {
         axe.x += Math.sin(axe.rotation) * 0.05 * delta
         axe.y -= Math.cos(axe.rotation) * 0.05 * delta
 
-        if (axe.lifespan > 0) {
+        axe.lifespan -= delta
+        if (axe.lifespan) {
           // if axe existed for longer than 700ms delete it
-          if (time > axe.lifespan) {
+          if (axe.lifespan < 0) {
             axe.destroy()
           }
         } else {
           // Initialize 700ms lifespan for axe
-          axe.lifespan = time + 700
+          axe.lifespan = 700
         }
       }
     })
@@ -362,7 +369,7 @@ class GameScene extends Phaser.Scene {
     if (this.plrHealth <= 0) {
       // GAMEOVER
       // os.delete("system32")
-      this.cameras.main.setBackgroundColor("#ff0000")
+      this.gameOver()
     }
   }
 
@@ -383,6 +390,25 @@ class GameScene extends Phaser.Scene {
       // DRAW ROCKET ON BOTTOM LEFT CIRCLE
       this.selectedWeaponImg = this.add.sprite(75, 525, "rocket").setScale(1.8)
     }
+  }
+
+  gameOver() {
+    if ((this.resetScene)) {
+      this.scene.restart()
+      this.resetScene = false
+      return
+    }
+    this.cameras.main.setBackgroundColor("#ff0000")
+    this.player.setTint(0x000000)
+    this.gameBackground.setTint(0xff0000)
+    this.enemyHandler.Enemies.children.each((enemy) => {
+      enemy.setTint(0x000000)
+    })
+
+    this.scene.launch("gameOverScene")
+    this.scene.pause("gameScene");
+    this.resetScene = true
+    
   }
 }
 

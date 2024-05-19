@@ -5,12 +5,14 @@ import SplashScene from "./splashScene.js"
 import TitleScene from "./titleScene.js"
 import GameScene from './gameScene.js'
 import PauseScene from './pauseScene.js'
+import GameOverScene from './gameOverScene.js'
 
 // Scenes
 const splashScene = new SplashScene()
 const titleScene = new TitleScene()
 const gameScene = new GameScene()
 const pauseScene = new PauseScene()
+const gameOverScene = new GameOverScene()
 
 // Viewport Size
 const viewport_width = 800
@@ -45,5 +47,7 @@ game.scene.add("splashScene", splashScene)
 game.scene.add("titleScene", titleScene)
 game.scene.add("gameScene", gameScene)
 game.scene.add("pauseScene", pauseScene)
+game.scene.add("gameOverScene", gameOverScene)
+
 // Start with splashScene
 game.scene.start("splashScene")

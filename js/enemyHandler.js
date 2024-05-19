@@ -15,7 +15,6 @@ class enemyHandler {
     this.createEnemies()
     this.createWaves()
 
-    console.log(this.EnemyList)
   }
 
   newEnemy = () => {
@@ -196,18 +195,16 @@ class enemyHandler {
     this.gameScene.physics.add.collider(
       this.Enemies,
       this.gameScene.plrProjectiles,
-      (enemy, projectile) => {
+      function (enemy, projectile) {
         if (enemy.hitList[projectile.id]) {
           return
         }
         enemy.hitList[projectile.id] = true
 
-        console.log(projectile.type)
-        console.log(projectile)
         if (projectile.weaponType == "rocket") {
-          enemy.health -= 22
+          enemy.health -= this.gameScene.plrDamage * 2.2
         } else {
-          enemy.health -= 45
+          enemy.health -= this.gameScene.plrDamage * 4.5
         }
 
         enemy.setAlpha(0.1 + enemy.health / enemy.stats.maxHealth)
@@ -216,7 +213,7 @@ class enemyHandler {
           enemy.destroy()
           return
         }
-      }
+      }.bind(this)
     )
   }
 
@@ -367,7 +364,7 @@ class enemyHandler {
     if (this.waveSpawning) {
       return
     }
-    // Get current enemy amount
+
     let enemyAmount = this.Enemies.children.size
     // Check if we need to start a new wave
     if (enemyAmount == 0) {

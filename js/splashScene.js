@@ -22,6 +22,9 @@ class SplashScene extends Phaser.Scene {
 
     // Load Pause Screen
     this.load.image("pauseScreen",  "./assets/pauseScreen.png")
+
+    // Load Try Again Button
+    this.load.image("tryAgainButton",  "./assets/tryAgainButton.png")
   }
 
   // Create, happens after preload() is complete

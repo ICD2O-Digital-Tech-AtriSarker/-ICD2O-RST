@@ -12,6 +12,16 @@ class TitleScene extends Phaser.Scene {
   init(data) {
     // SET BACKGROUND COLOR TO BLACK
     this.cameras.main.setBackgroundColor('#000000');
+    
+    // PLAYER STATS
+    let playerStats = {}
+    playerStats.speed = 200
+    playerStats.attackSpeed = 1000
+    playerStats.maxHealth = 100
+    playerStats.damage = 10
+
+    // MAKE PLAYER STATS GLOBAL
+    this.registry.set('playerStats', Object.assign({},playerStats))
   }
 
   // Preload, for loading assets

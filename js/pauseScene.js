@@ -1,4 +1,4 @@
-// SPLASH SCENE
+// PAUSE SCENE
 class PauseScene extends Phaser.Scene {
   // Constructor, called upon "new"
   constructor() {
