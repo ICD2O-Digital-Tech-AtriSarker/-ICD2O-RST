@@ -164,7 +164,7 @@ class enemyHandler {
           this.shootInDirection(enemy, 3.14)
           this.shootInDirection(enemy, 3.14 + 1.57)
         }
-        case "keepMovement" {
+        case "keepMovement": {
           // Do nothing and keep velocity as normal
            break
         }
