@@ -183,6 +183,7 @@ class enemyHandler {
   }
 
   shootInDirection(enemy, direction) {
+    let enemyData = enemy.stats
     // CREATE PROJECTILE
     let projectile = this.gameScene.physics.add.sprite(
       enemy.x,
