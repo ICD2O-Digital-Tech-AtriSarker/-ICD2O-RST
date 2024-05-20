@@ -14,6 +14,7 @@ class GameScene extends Phaser.Scene {
   init(data) {
     // Get restart data
     this.restarted = data.restart
+    
     // SET BACKGROUND COLOR TO BLACK
     this.cameras.main.setBackgroundColor("#575757")
 
@@ -245,6 +246,25 @@ class GameScene extends Phaser.Scene {
     // WEAPON CIRCLE AT BOTTOM
     this.switchWeapon()
     this.switchWeapon()
+
+    // Text for Level at top-right corner
+    this.levelText = this.add.text(575, 10, `LEVEL: ${this.plrLevel + 1}`, {
+      fontFamily: "Oswald",
+        fontSize: "32px",
+        color: "#ffffff",
+        fontStyle: "normal",
+        strokeThickness: 3,
+        shadow: {
+          color: "#000000",
+          fill: true,
+          offsetX: 2,
+          offsetY: 2,
+          blur: 3,
+          stroke: true,
+        },
+        padding: { left: 4, right: 16, top: 4, bottom: 4 },
+        maxLines: 1,
+    })
   }
 
   // Delta update loop, loops whilst the scene is active
@@ -416,6 +436,19 @@ class GameScene extends Phaser.Scene {
       this.resetScene = false
       return
     }
+
+    // SAVE STATS
+    let savedStats = {}
+    savedStats.speed = this.plrSpeed
+    savedStats.attackSpeed = this.plrAttackSpeed
+    savedStats.maxHealth = this.plrMaxHealth
+    savedStats.damage = this.plrDamage
+    savedStats.xp = this.plrXp
+    savedStats.level = this.plrLevel
+
+    // ADD STATS TO DATA REGISTRY
+    this.registry.set('playerStats', Object.assign({},savedStats))
+    
     this.cameras.main.setBackgroundColor("#ff0000")
     this.player.setTint(0x000000)
     this.gameBackground.setTint(0xff0000)
@@ -426,19 +459,20 @@ class GameScene extends Phaser.Scene {
     this.scene.launch("gameOverScene")
     this.scene.pause("gameScene");
     this.resetScene = true
-    
+
   }
 
   // Function for amount of xp needed for a level
   xpAmountForLevel(levelNum) {
     if (levelNum <= 0) {return 0}
-    if (levelNum >= 40) {return Infinity}
-    return (levelNum * 50) * (levelNum + 1)
+    if (levelNum >= this.maxLevel) {return Infinity}
+    return 50 * ( (levelNum) * (levelNum + 1) )
   }
 
   // Function that is called on levelUp
   levelUp() {
     this.plrLevel += 1
+    this.levelText.setText(`LEVEL: ${this.plrLevel + 1}`)
 
     // FULL HP
     this.plrHealth = this.plrMaxHealth

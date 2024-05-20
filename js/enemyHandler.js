@@ -56,11 +56,16 @@ class enemyHandler {
     loadEnemy("goose")
     loadEnemy("amazingBulk")
     loadEnemy("warrior")
+    loadEnemy("megaKnight")
+    loadEnemy("gatlingPea")
+    loadEnemy("triplePea")
 
     // PROJECTILE SPRITES
     loadProjectile("rocket")
     loadProjectile("bulkFist")
     loadProjectile("mace")
+    loadProjectile("megaFist")
+    loadProjectile("pea")
   }
 
   spawnEnemy(enemyDataName, posX, posY) {
@@ -124,22 +129,6 @@ class enemyHandler {
         }
         case "shoot": {
           enemy.body.setVelocity(0, 0)
-
-          // CREATE PROJECTILE
-          let projectile = this.gameScene.physics.add.sprite(
-            enemy.x,
-            enemy.y,
-            `${enemyData.projectileKey}`
-          )
-
-          let newWidth = enemyData.projectileSize
-          let newHeight = newWidth * (enemy.height / enemy.width)
-
-          projectile.scaleX = newWidth / enemy.width
-          projectile.scaleY = newHeight / enemy.height
-
-          projectile.body.setSize(newWidth * 0.7, newHeight * 0.7)
-
           // Make it go towards player
           let direction = Phaser.Math.Angle.Between(
             enemy.x,
@@ -147,31 +136,37 @@ class enemyHandler {
             player.x,
             player.y
           )
-
-          projectile.rotation = direction + 1.57
-          projectile.setTint(0xff0000)
-
-          this.EnemyProjectiles.add(projectile)
-          projectile.setVelocityX(
-            Math.cos(direction) * enemyData.projectileSpeed
-          )
-          projectile.setVelocityY(
-            Math.sin(direction) * enemyData.projectileSpeed
-          )
-
-          // delete after certain amount of time
-          this.gameScene.time.addEvent({
-            delay:
-              (1000 * enemyData.projectileDistance) / enemyData.projectileSpeed,
-            callback: () => {
-              projectile.destroy()
-            },
-          })
-
-          // ADD TO GROUP
-          projectile.damage = enemyData.damage
-
+          this.shootInDirection(enemy, direction)
           break
+        }
+        case "moveVertical": {
+          // Random Number : 1 or -1
+          let direction = Math.random() > 0.5 ? 1 : -1
+          enemy.setVelocityY( direction * enemyData.moveAmount)
+          break
+        }
+        case "tripleShot": {
+          let direction = Phaser.Math.Angle.Between(
+            enemy.x,
+            enemy.y,
+            player.x,
+            player.y
+          )
+          this.shootInDirection(enemy, direction)
+          this.shootInDirection(enemy, direction + 0.3)
+          this.shootInDirection(enemy, direction - 0.3)
+          break
+        }
+        case "axisShot": {
+          // Shoot a projectiles in all axis directions
+          this.shootInDirection(enemy, 0)
+          this.shootInDirection(enemy, 1.57)
+          this.shootInDirection(enemy, 3.14)
+          this.shootInDirection(enemy, 3.14 + 1.57)
+        }
+        case "keepMovement" {
+          // Do nothing and keep velocity as normal
+           break
         }
         case "idle": {
           enemy.body.setVelocity(0, 0)
@@ -185,6 +180,46 @@ class enemyHandler {
       enemyData.actionLoopIndex =
         (enemyData.actionLoopIndex + 1) % enemyData.actionLoop.length
     })
+  }
+
+  shootInDirection(enemy, direction) {
+    // CREATE PROJECTILE
+    let projectile = this.gameScene.physics.add.sprite(
+      enemy.x,
+      enemy.y,
+      `${enemyData.projectileKey}`
+    )
+
+    let newWidth = enemyData.projectileSize
+    let newHeight = newWidth * (enemy.height / enemy.width)
+
+    projectile.scaleX = newWidth / enemy.width
+    projectile.scaleY = newHeight / enemy.height
+
+    projectile.body.setSize(newWidth * 0.7, newHeight * 0.7)
+
+    projectile.rotation = direction + 1.57
+    projectile.setTint(0xff0000)
+
+    this.EnemyProjectiles.add(projectile)
+    projectile.setVelocityX(
+      Math.cos(direction) * enemyData.projectileSpeed
+    )
+    projectile.setVelocityY(
+      Math.sin(direction) * enemyData.projectileSpeed
+    )
+
+    // delete after certain amount of time
+    this.gameScene.time.addEvent({
+      delay:
+        (1000 * enemyData.projectileDistance) / enemyData.projectileSpeed,
+      callback: () => {
+        projectile.destroy()
+      },
+    })
+
+    // ADD TO GROUP
+    projectile.damage = enemyData.damage
   }
 
   addColliders() {
@@ -238,7 +273,7 @@ class enemyHandler {
     enm = this.EnemyList["goose"]
     enm.maxHealth = 100
     enm.moveAmount = 100
-    enm.damage = 10
+    enm.damage = 15
     enm.projectileKey = "rocket"
     enm.projectileSize = 40
     enm.projectileSpeed = 90
@@ -254,7 +289,7 @@ class enemyHandler {
     enm = this.EnemyList["bulk"]
     enm.maxHealth = 200
     enm.moveAmount = 60
-    enm.damage = 30
+    enm.damage = 45
     enm.projectileKey = "bulkFist"
     enm.projectileSize = 80
     enm.projectileSpeed = 200
@@ -270,7 +305,7 @@ class enemyHandler {
     enm = this.EnemyList["warrior"]
     enm.maxHealth = 120
     enm.moveAmount = 90
-    enm.damage = 20
+    enm.damage = 25
     enm.projectileKey = "mace"
     enm.projectileSize = 50
     enm.projectileSpeed = 50
@@ -281,7 +316,58 @@ class enemyHandler {
     enm.actionLoop = ["advance", "shoot", "advance"]
     enm.actionSpeed = 400
 
+    // MEGA KNIGHT
+    this.EnemyList["megaKnight"] = this.newEnemy()
+    enm = this.EnemyList["megaKnight"]
+    enm.maxHealth = 550
+    enm.moveAmount = 300
+    enm.damage = 90
+    enm.projectileKey = "megaFist"
+    enm.projectileSize = 130
+    enm.projectileSpeed = 400
+    enm.projectileDistance = 120
+    enm.spriteKey = "megaKnight"
+    enm.spriteSize = 130
+    enm.xp = 500
+    enm.actionLoop = ["advance", "idle", "idle", "idle", "idle", "idle", "advance", "advance", "advance", "shoot", "shoot"]
+    enm.actionSpeed = 300
     enm = null
+
+    // GATLING PEA
+    this.EnemyList["gatlingPea"] = this.newEnemy()
+    enm = this.EnemyList["gatlingPea"]
+    enm.maxHealth = 250
+    enm.moveAmount = 0
+    enm.damage = 20
+    enm.projectileKey = "pea"
+    enm.projectileSize = 50
+    enm.projectileSpeed = 370
+    enm.projectileDistance = 1500
+    enm.spriteKey = "gatlingPea"
+    enm.spriteSize = 130
+    enm.xp = 110
+    enm.actionLoop = ["shoot", "shoot", "shoot", "shoot", "shoot", "idle", "tripleShot", "idle"]
+    enm.actionSpeed = 250
+    enm = null
+
+    // TRIPLE PEA
+    this.EnemyList["triplePea"] = this.newEnemy()
+    enm = this.EnemyList["triplePea"]
+    enm.maxHealth = 250
+    enm.moveAmount = 0
+    enm.damage = 20
+    enm.projectileKey = "pea"
+    enm.projectileSize = 50
+    enm.projectileSpeed = 370
+    enm.projectileDistance = 1500
+    enm.spriteKey = "triplePea"
+    enm.spriteSize = 130
+    enm.xp = 100
+    enm.actionLoop = ["idle", "idle", "tripleShot"]
+    enm.actionSpeed = 250
+    enm = null
+
+    
   }
 
   createWaves() {
@@ -295,6 +381,10 @@ class enemyHandler {
     this.waves.push(["bulk", "goose", "goose"])
     // WAVE 4
     this.waves.push(["goose", "goose", "goose", "goose", "goose", "goose"])
+    // WAVE 5
+    this.waves.push(["megaKnight"])
+    // WAVE 6
+    this.waves.push(["triplePea","triplePea","bulk","bulk","bulk"])
 
     this.currentWaveNumber = 0
   }

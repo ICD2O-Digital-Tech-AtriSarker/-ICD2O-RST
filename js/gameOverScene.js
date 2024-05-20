@@ -1,4 +1,4 @@
-// PAUSE SCENE
+// GAME OVER SCENE
 class GameOverScene extends Phaser.Scene {
   // Constructor, called upon "new"
   constructor() {
