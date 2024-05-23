@@ -443,7 +443,7 @@ class enemyHandler {
     enm.projectileDistance = 500
     enm.spriteKey = "kingGorilla"
     enm.spriteSize = 70
-    enm.xp = 5000
+    enm.xp = 0
     enm.actionLoop = ["moveVertical", "tripleShot", "advance", "tripleShot", "moveVertical", "shoot", "shoot", "shoot", "shoot", "shoot", "shoot", "tripleShot", "axisShot", "shoot", "advance", "advance", "advance"]
     enm.actionSpeed = 330
     enm = null

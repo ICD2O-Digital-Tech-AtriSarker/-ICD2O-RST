@@ -118,7 +118,6 @@ class GameScene extends Phaser.Scene {
     // Creative Commons CC BY 4.0
     // https://creativecommons.org/licenses/by/4.0/
     this.load.audio("gameMusic", "./sounds/gameMusic.mp3")
-
   }
 
   // Create, happens after preload() is complete
@@ -210,6 +209,12 @@ class GameScene extends Phaser.Scene {
         }
       }.bind(this)
     )
+    // Initial
+    if (this.sound.mute) {
+      this.musicButton.setText("MUSIC : OFF")
+    } else {
+      this.musicButton.setText("MUSIC : ON")
+    }
 
     // Create DEBUG Toggle button
     this.debugButton = this.UI.createButton(
@@ -279,13 +284,14 @@ class GameScene extends Phaser.Scene {
     this.gameMusic = this.sound.add("gameMusic")
     this.gameMusic.loop = true
     this.gameMusic.setRate(1)
-    this.gameMusic.play({volume:0.7})
+    this.gameMusic.play({ volume: 0.7 })
   }
 
   // Delta update loop, loops whilst the scene is active
   update(time, delta) {
     if (this.resetScene) {
       this.gameMusic.stop()
+      this.gameMusic.destroy()
       this.scene.restart()
       this.resetScene = false
       return
@@ -454,10 +460,10 @@ class GameScene extends Phaser.Scene {
   }
 
   gameOver() {
-    
     // STOP MUSIC
     this.gameMusic.stop()
-    
+    this.gameMusic.destroy()
+
     // SAVE STATS
     let savedStats = {}
     savedStats.speed = this.plrSpeed
@@ -491,6 +497,7 @@ class GameScene extends Phaser.Scene {
 
     // STOP MUSIC
     this.gameMusic.stop()
+    this.gameMusic.destroy()
 
     // SAVE STATS
     let savedStats = {}
@@ -541,7 +548,6 @@ class GameScene extends Phaser.Scene {
     this.scene.launch("upgradeScene")
     this.scene.pause("gameScene")
   }
-
 }
 
 export default GameScene
