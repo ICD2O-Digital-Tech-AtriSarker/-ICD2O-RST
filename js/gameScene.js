@@ -14,7 +14,7 @@ class GameScene extends Phaser.Scene {
   init(data) {
     // Get restart data
     this.restarted = data.restart
-    
+
     // SET BACKGROUND COLOR TO BLACK
     this.cameras.main.setBackgroundColor("#575757")
 
@@ -63,8 +63,8 @@ class GameScene extends Phaser.Scene {
     }
 
     // PLAYER STATS
-    this.plrStats = this.registry.get('playerStats')
-    
+    this.plrStats = this.registry.get("playerStats")
+
     this.plrSpeed = this.plrStats.speed
     this.plrAttackSpeed = this.plrStats.attackSpeed
     this.plrMaxHealth = this.plrStats.maxHealth
@@ -77,7 +77,7 @@ class GameScene extends Phaser.Scene {
 
     // SET HP TO MAX HP
     this.plrHealth = this.plrMaxHealth
- 
+
     // GROUP FOR PLAYER PROJECTILES
     this.plrProjectiles = this.physics.add.group()
     // DEBOUNCE FOR ATTACK COOLDOWN
@@ -110,6 +110,15 @@ class GameScene extends Phaser.Scene {
 
     // Load enemy assets
     this.enemyHandler.loadAssets()
+
+    // LOAD BACKGROUND MUSIC
+    // Attribution :
+    // EpicBattle J by PeriTune | https://peritune.com/
+    // Music promoted by https://www.chosic.com/free-music/all/
+    // Creative Commons CC BY 4.0
+    // https://creativecommons.org/licenses/by/4.0/
+    this.load.audio("gameMusic", "./sounds/gameMusic.mp3")
+
   }
 
   // Create, happens after preload() is complete
@@ -227,10 +236,10 @@ class GameScene extends Phaser.Scene {
       "PAUSE",
       function () {
         this.scene.launch("pauseScene")
-        this.scene.pause("gameScene");
+        this.scene.pause("gameScene")
       }.bind(this)
     )
-    
+
     // HP BAR
     this.plrHpBar = this.UI.createBar(160, 500, 200, 32, "HP")
     this.plrHpBar.setFillStyle(0x00ff00)
@@ -250,26 +259,38 @@ class GameScene extends Phaser.Scene {
     // Text for Level at top-right corner
     this.levelText = this.add.text(575, 10, `LEVEL: ${this.plrLevel + 1}`, {
       fontFamily: "Oswald",
-        fontSize: "32px",
-        color: "#ffffff",
-        fontStyle: "normal",
-        strokeThickness: 3,
-        shadow: {
-          color: "#000000",
-          fill: true,
-          offsetX: 2,
-          offsetY: 2,
-          blur: 3,
-          stroke: true,
-        },
-        padding: { left: 4, right: 16, top: 4, bottom: 4 },
-        maxLines: 1,
+      fontSize: "32px",
+      color: "#ffffff",
+      fontStyle: "normal",
+      strokeThickness: 3,
+      shadow: {
+        color: "#000000",
+        fill: true,
+        offsetX: 2,
+        offsetY: 2,
+        blur: 3,
+        stroke: true,
+      },
+      padding: { left: 4, right: 16, top: 4, bottom: 4 },
+      maxLines: 1,
     })
+
+    // PLAY MUSIC
+    this.gameMusic = this.sound.add("gameMusic")
+    this.gameMusic.loop = true
+    this.gameMusic.setRate(1)
+    this.gameMusic.play({volume:0.7})
   }
 
   // Delta update loop, loops whilst the scene is active
   update(time, delta) {
-  
+    if (this.resetScene) {
+      this.gameMusic.stop()
+      this.scene.restart()
+      this.resetScene = false
+      return
+    }
+
     // GET DIRECTION VECTOR
     let dir = this.getDir()
     // MOVE PLAYER FORWARD WITH DIRECTION VECTOR
@@ -396,13 +417,15 @@ class GameScene extends Phaser.Scene {
     this.plrHpBar.update(this.plrMaxHealth, this.plrHealth)
 
     // XP, LEVEL AND XP BAR
-    if (this.plrXp >= this.xpAmountForLevel(this.plrLevel+1)) {
+    if (this.plrXp >= this.xpAmountForLevel(this.plrLevel + 1)) {
       this.levelUp()
     }
-    
+
     this.plrXpBar.update(
-      this.xpAmountForLevel(this.plrLevel+1) - this.xpAmountForLevel(this.plrLevel), 
-      this.plrXp - this.xpAmountForLevel(this.plrLevel))
+      this.xpAmountForLevel(this.plrLevel + 1) -
+        this.xpAmountForLevel(this.plrLevel),
+      this.plrXp - this.xpAmountForLevel(this.plrLevel)
+    )
 
     if (this.plrHealth <= 0) {
       // GAMEOVER
@@ -431,11 +454,43 @@ class GameScene extends Phaser.Scene {
   }
 
   gameOver() {
-    if ((this.resetScene)) {
+    
+    // STOP MUSIC
+    this.gameMusic.stop()
+    
+    // SAVE STATS
+    let savedStats = {}
+    savedStats.speed = this.plrSpeed
+    savedStats.attackSpeed = this.plrAttackSpeed
+    savedStats.maxHealth = this.plrMaxHealth
+    savedStats.damage = this.plrDamage
+    savedStats.xp = this.plrXp
+    savedStats.level = this.plrLevel
+
+    // ADD STATS TO DATA REGISTRY
+    this.registry.set("playerStats", Object.assign({}, savedStats))
+
+    this.cameras.main.setBackgroundColor("#ff0000")
+    this.player.setTint(0x000000)
+    this.gameBackground.setTint(0xff0000)
+    this.enemyHandler.Enemies.children.each((enemy) => {
+      enemy.setTint(0x000000)
+    })
+
+    this.scene.launch("gameOverScene")
+    this.scene.pause("gameScene")
+    this.resetScene = true
+  }
+
+  victory() {
+    if (this.resetScene) {
       this.scene.restart()
       this.resetScene = false
       return
     }
+
+    // STOP MUSIC
+    this.gameMusic.stop()
 
     // SAVE STATS
     let savedStats = {}
@@ -447,40 +502,44 @@ class GameScene extends Phaser.Scene {
     savedStats.level = this.plrLevel
 
     // ADD STATS TO DATA REGISTRY
-    this.registry.set('playerStats', Object.assign({},savedStats))
-    
-    this.cameras.main.setBackgroundColor("#ff0000")
+    this.registry.set("playerStats", Object.assign({}, savedStats))
+
+    this.cameras.main.setBackgroundColor("#00ff00")
     this.player.setTint(0x000000)
-    this.gameBackground.setTint(0xff0000)
-    this.enemyHandler.Enemies.children.each((enemy) => {
-      enemy.setTint(0x000000)
-    })
+    this.gameBackground.setTint(0x00ff00)
 
-    this.scene.launch("gameOverScene")
-    this.scene.pause("gameScene");
+    this.scene.launch("victoryScene")
+    this.scene.pause("gameScene")
     this.resetScene = true
-
   }
 
   // Function for amount of xp needed for a level
   xpAmountForLevel(levelNum) {
-    if (levelNum <= 0) {return 0}
-    if (levelNum >= this.maxLevel) {return Infinity}
-    return 50 * ( (levelNum) * (levelNum + 1) )
+    if (levelNum <= 0) {
+      return 0
+    }
+    if (levelNum >= this.maxLevel) {
+      return Infinity
+    }
+    return 50 * (levelNum * (levelNum + 1))
   }
 
   // Function that is called on levelUp
   levelUp() {
     this.plrLevel += 1
-    this.levelText.setText(`LEVEL: ${this.plrLevel + 1}`)
+    if (this.plrLevel >= this.maxLevel - 1) {
+      this.levelText.setText(`LEVEL: ${this.maxLevel} (MAX)`)
+      this.levelText.x -= 150
+    } else {
+      this.levelText.setText(`LEVEL: ${this.plrLevel + 1}`)
+    }
 
     // FULL HP
     this.plrHealth = this.plrMaxHealth
-    
+
     // Pause Game and add upgrade scene
     this.scene.launch("upgradeScene")
-    this.scene.pause("gameScene");
-
+    this.scene.pause("gameScene")
   }
 
 }

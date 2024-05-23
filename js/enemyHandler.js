@@ -59,13 +59,19 @@ class enemyHandler {
     loadEnemy("megaKnight")
     loadEnemy("gatlingPea")
     loadEnemy("triplePea")
+    loadEnemy("gorilla")
+    loadEnemy("kingGoose")
+    loadEnemy("demon")
+    loadEnemy("kingGorilla")
 
     // PROJECTILE SPRITES
     loadProjectile("rocket")
+    loadProjectile("axe")
     loadProjectile("bulkFist")
     loadProjectile("mace")
     loadProjectile("megaFist")
     loadProjectile("pea")
+    loadProjectile("fireball")
   }
 
   spawnEnemy(enemyDataName, posX, posY) {
@@ -128,7 +134,7 @@ class enemyHandler {
           break
         }
         case "shoot": {
-          enemy.body.setVelocity(0, 0)
+          enemy.setVelocity(0, 0)
           // Make it go towards player
           let direction = Phaser.Math.Angle.Between(
             enemy.x,
@@ -197,12 +203,13 @@ class enemyHandler {
     projectile.scaleX = newWidth / enemy.width
     projectile.scaleY = newHeight / enemy.height
 
-    projectile.body.setSize(newWidth * 0.7, newHeight * 0.7)
+    projectile.body.setSize(newWidth * 0.6)
 
     projectile.rotation = direction + 1.57
     projectile.setTint(0xff0000)
 
     this.EnemyProjectiles.add(projectile)
+    
     projectile.setVelocityX(
       Math.cos(direction) * enemyData.projectileSpeed
     )
@@ -229,7 +236,11 @@ class enemyHandler {
       this.EnemyProjectiles,
       (player, projectile) => {
         this.gameScene.plrHealth -= projectile.damage
-        projectile.destroy()
+
+        // turn off projectile
+        projectile.body.checkCollision.none = true;
+        // Indicate Projectile has hit
+        projectile.setAlpha(0.2)
       }
     )
     this.gameScene.physics.add.collider(
@@ -242,7 +253,7 @@ class enemyHandler {
         enemy.hitList[projectile.id] = true
 
         if (projectile.weaponType == "rocket") {
-          enemy.health -= this.gameScene.plrDamage * 2.2
+          enemy.health -= this.gameScene.plrDamage * 2.2 
         } else {
           enemy.health -= this.gameScene.plrDamage * 4.5
         }
@@ -250,7 +261,7 @@ class enemyHandler {
         enemy.setAlpha(0.1 + enemy.health / enemy.stats.maxHealth)
 
         if (enemy.health <= 0) {
-          this.gameScene.plrXp += enemy.stats.xp
+          this.gameScene.plrXp += enemy.stats.xp * 1
           enemy.destroy()
           return
         }
@@ -329,7 +340,7 @@ class enemyHandler {
     enm.projectileDistance = 120
     enm.spriteKey = "megaKnight"
     enm.spriteSize = 130
-    enm.xp = 500
+    enm.xp = 400
     enm.actionLoop = ["advance", "idle", "idle", "idle", "idle", "idle", "advance", "advance", "advance", "shoot", "shoot"]
     enm.actionSpeed = 300
     enm = null
@@ -337,15 +348,15 @@ class enemyHandler {
     // GATLING PEA
     this.EnemyList["gatlingPea"] = this.newEnemy()
     enm = this.EnemyList["gatlingPea"]
-    enm.maxHealth = 250
+    enm.maxHealth = 300
     enm.moveAmount = 0
     enm.damage = 20
     enm.projectileKey = "pea"
-    enm.projectileSize = 50
-    enm.projectileSpeed = 370
+    enm.projectileSize = 40
+    enm.projectileSpeed = 220
     enm.projectileDistance = 1500
     enm.spriteKey = "gatlingPea"
-    enm.spriteSize = 130
+    enm.spriteSize = 50
     enm.xp = 110
     enm.actionLoop = ["shoot", "shoot", "shoot", "shoot", "shoot", "idle", "tripleShot", "idle"]
     enm.actionSpeed = 250
@@ -354,20 +365,88 @@ class enemyHandler {
     // TRIPLE PEA
     this.EnemyList["triplePea"] = this.newEnemy()
     enm = this.EnemyList["triplePea"]
-    enm.maxHealth = 250
+    enm.maxHealth = 300
     enm.moveAmount = 0
     enm.damage = 20
     enm.projectileKey = "pea"
-    enm.projectileSize = 50
-    enm.projectileSpeed = 370
+    enm.projectileSize = 40
+    enm.projectileSpeed = 220
     enm.projectileDistance = 1500
     enm.spriteKey = "triplePea"
-    enm.spriteSize = 130
+    enm.spriteSize = 50
     enm.xp = 100
     enm.actionLoop = ["idle", "idle", "tripleShot"]
     enm.actionSpeed = 250
     enm = null
 
+    // GORILLA
+    this.EnemyList["gorilla"] = this.newEnemy()
+    enm = this.EnemyList["gorilla"]
+    enm.maxHealth = 450
+    enm.moveAmount = 180
+    enm.damage = 45
+    enm.projectileKey = "fireball"
+    enm.projectileSize = 70
+    enm.projectileSpeed = 120
+    enm.projectileDistance = 1500
+    enm.spriteKey = "gorilla"
+    enm.spriteSize = 50
+    enm.xp = 150
+    enm.actionLoop = ["idle", "moveVertical", "keepMovement", "tripleShot", "shoot", "idle", "axisShot", "advance", "moveVertical", "axisShot", "shoot", "moveVertical", "retreat"]
+    enm.actionSpeed = 570
+    enm = null
+
+    // KING GOOSE
+    this.EnemyList["kingGoose"] = this.newEnemy()
+    enm = this.EnemyList["kingGoose"]
+    enm.maxHealth = 1800
+    enm.moveAmount = 250
+    enm.damage = 40
+    enm.projectileKey = "rocket"
+    enm.projectileSize = 80
+    enm.projectileSpeed = 150
+    enm.projectileDistance = 1500
+    enm.spriteKey = "kingGoose"
+    enm.spriteSize = 120
+    enm.xp = 1100
+    enm.actionLoop = ["tripleShot", "axisShot","moveVertical","axisShot","keepMovement","axisShot","idle","tripleShot","retreat", 
+                     "moveVertical", "tripleShot", "axisShot", "advance", "advance", "idle", "idle"]
+    enm.actionSpeed = 330
+    enm = null
+
+    // DEMON
+    this.EnemyList["demon"] = this.newEnemy()
+    enm = this.EnemyList["demon"]
+    enm.maxHealth = 900
+    enm.moveAmount = 220
+    enm.damage = 70
+    enm.projectileKey = "fireball"
+    enm.projectileSize = 70
+    enm.projectileSpeed = 190
+    enm.projectileDistance = 300
+    enm.spriteKey = "demon"
+    enm.spriteSize = 50
+    enm.xp = 600
+    enm.actionLoop = ["moveVertical", "keepMovement", "tripleShot", "axisShot", "idle", "tripleShot", "advance", "moveVertical", "axisShot", "tripleShot", "moveVertical", "advance"]
+    enm.actionSpeed = 300
+    enm = null
+
+    // KING GORILLA
+    this.EnemyList["kingGorilla"] = this.newEnemy()
+    enm = this.EnemyList["kingGorilla"]
+    enm.maxHealth = 6000
+    enm.moveAmount = 300
+    enm.damage = 90
+    enm.projectileKey = "axe"
+    enm.projectileSize = 50
+    enm.projectileSpeed = 250
+    enm.projectileDistance = 500
+    enm.spriteKey = "kingGorilla"
+    enm.spriteSize = 70
+    enm.xp = 5000
+    enm.actionLoop = ["moveVertical", "tripleShot", "advance", "tripleShot", "moveVertical", "shoot", "shoot", "shoot", "shoot", "shoot", "shoot", "tripleShot", "axisShot", "shoot", "advance", "advance", "advance"]
+    enm.actionSpeed = 330
+    enm = null
     
   }
 
@@ -386,6 +465,26 @@ class enemyHandler {
     this.waves.push(["megaKnight"])
     // WAVE 6
     this.waves.push(["triplePea","triplePea","bulk","bulk","bulk"])
+    // WAVE 7
+    this.waves.push(["triplePea","gorilla","bulk", "warrior", "warrior"])
+    // WAVE 8
+    this.waves.push(["gatlingPea", "megaKnight", "bulk", "triplePea", "goose"])
+    // WAVE 9
+    this.waves.push(["gatlingPea","gatlingPea","triplePea","triplePea","gorilla"])
+    // WAVE 10
+    this.waves.push(["goose", "goose", "goose", "goose", "goose", "goose", "goose", "goose", "goose", "kingGoose"])
+    // WAVE 11
+    this.waves.push(["gorilla", "gorilla", "megaKnight", "megaKnight", "gatlingPea"])
+    // WAVE 12
+    this.waves.push(["triplePea", "demon", "demon", "triplePea", "megaKnight", "triplePea"])
+    // WAVE 13
+    this.waves.push(["gatlingPea", "gatlingPea", "gatlingPea", "gatlingPea", "gatlingPea", "gatlingPea", "gatlingPea", "gatlingPea", "gatlingPea"])
+    // WAVE 14
+    this.waves.push(["gorilla", "gorilla", "demon", "demon", "demon", "triplePea", "goose", "warrior", "warrior"])
+    // WAVE 15
+    this.waves.push(["gorilla", "gorilla", "kingGorilla"])
+    
+                    
 
     this.currentWaveNumber = 0
   }
@@ -393,6 +492,7 @@ class enemyHandler {
   spawnWave() {
     let newWave = this.waves[this.currentWaveNumber]
     if (newWave === undefined) {
+      this.gameScene.victory()
       return
     }
 
@@ -466,6 +566,8 @@ class enemyHandler {
     // Check if we need to start a new wave
     if (enemyAmount == 0) {
       this.spawnWave()
+      // Heal by 50%
+      this.gameScene.plrHealth = Math.min(1.5 * this.gameScene.plrHealth, this.gameScene.plrMaxHealth)
     }
   }
 

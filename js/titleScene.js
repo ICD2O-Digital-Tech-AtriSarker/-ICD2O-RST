@@ -1,5 +1,6 @@
 /* global Phaser */
 
+import UIhandler from "./UIhandler.js"
 // TITLE SCENE
 class TitleScene extends Phaser.Scene {
 
@@ -24,6 +25,9 @@ class TitleScene extends Phaser.Scene {
 
     // MAKE PLAYER STATS GLOBAL
     this.registry.set('playerStats', Object.assign({},playerStats))
+
+    // UI
+    this.UI = new UIhandler(this)
   }
 
   // Preload, for loading assets
@@ -85,6 +89,11 @@ class TitleScene extends Phaser.Scene {
     // PLAY TITLE SCREEN VIDEO AND MUSIC
     this.titleMusic.play();
     this.titleVideo.play();
+
+    this.UI.createButton(400, 550, "INSTRUCTIONS", function() {
+      console.log("CLICKED")
+      this.scene.switch("instructionsScene");
+    }.bind(this))
   }
   
   // Delta update loop, loops whilst the scene is active

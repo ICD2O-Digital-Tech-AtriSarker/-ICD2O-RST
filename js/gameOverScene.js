@@ -49,6 +49,9 @@ class GameOverScene extends Phaser.Scene {
       this.scene.stop();
     }.bind(this))
 
+    // PLAY GAME OVER SOUND
+    this.sound.add("gameOverSound").play()
+
     this.scene.bringToTop()
   }
 

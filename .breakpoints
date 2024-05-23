@@ -1,3 +1,12 @@
 {
-  "files": {}
+  "files": {
+    "js/enemyHandler.js": [
+      {
+        "id": "206c0864-c9d3-4db8-b0fa-5e61f5c370b4",
+        "line": 75,
+        "version": 11168,
+        "index": 1810
+      }
+    ]
+  }
 }

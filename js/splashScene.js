@@ -28,6 +28,11 @@ class SplashScene extends Phaser.Scene {
 
     // Load Try Again Button
     this.load.image("tryAgainButton",  "./assets/tryAgainButton.png")
+
+    // Load GAME OVER SOUND
+    this.load.audio("gameOverSound",  "./sounds/gameOver.wav")
+    // LOAD VICTORY SOUND
+    this.load.audio("victorySound",  "./sounds/victory.mp3")
   }
 
   // Create, happens after preload() is complete
