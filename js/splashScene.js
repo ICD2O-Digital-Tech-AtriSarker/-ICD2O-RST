@@ -64,7 +64,7 @@ class SplashScene extends Phaser.Scene {
 
       // FOR TEST/DEBUGGING
       // FAST-FORWARDS SPLASH SCREEN TO SAVE TIME
-      this.splashVideo.setPlaybackRate(10)
+      // this.splashVideo.setPlaybackRate(10)
     }.bind(this))
 
   }
