@@ -50,8 +50,6 @@ class InstructionsScene extends Phaser.Scene {
       }.bind(this)
     )
 
-    // Add text
-    // this.titleSceneText = this.add.text(400,300, "A-10 Strike!")
   }
 
   update(time, delta) {
