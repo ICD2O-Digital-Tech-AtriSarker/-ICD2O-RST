@@ -210,6 +210,7 @@ class GameScene extends Phaser.Scene {
       }.bind(this)
     )
     // Initial
+    this.sound.mute = true
     if (this.sound.mute) {
       this.musicButton.setText("MUSIC : OFF")
     } else {
